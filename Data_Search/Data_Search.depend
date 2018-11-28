@@ -1,0 +1,29 @@
+# depslib dependency file v1.0
+1543437275 source:d:\users\higor\documents\github\search_candidate_data\data_search\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<locale.h>
+	<stdbool.h>
+	<time.h>
+	"linear.h"
+
+1543178401 source:d:\users\higor\documents\github\search_candidate_data\data_search\btree.c
+	<stdio.h>
+	<stdlib.h>
+	<assert.h>
+	<string.h>
+	"BTree.h"
+
+1543178401 d:\users\higor\documents\github\search_candidate_data\data_search\btree.h
+
+1543426002 source:d:\users\higor\documents\github\search_candidate_data\data_search\linear.c
+	"linear.h"
+
+1543437259 d:\users\higor\documents\github\search_candidate_data\data_search\linear.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<locale.h>
+	<stdbool.h>
+
