@@ -35,7 +35,7 @@ void bTree_Destroy(bTree b)
 }
 
 ///retorna o menor indice i no array
-static int searchKey(int n, const int *a, int key)
+ int searchKey(int n, const double *a, double key)
 {
     int lo;
     int hi;
@@ -63,7 +63,7 @@ static int searchKey(int n, const int *a, int key)
     return hi;
 }
 
-int bTree_Search(bTree b, int key)
+int bTree_Search(bTree b, double key)
 {
     int pos;
 
@@ -88,11 +88,13 @@ int bTree_Search(bTree b, int key)
 ///insere na arvore
 ///retorna o novo nó direito se ele for dividido
 ///senao retorna 0
-static bTree bTree_Insert_Internal(bTree b, int key, int *median)
+bTree bTree_Insert_Internal(bTree b, int key, int *median, char* nome)
 {
     int pos;
     int mid;
     bTree b2;
+
+   // printf("funcao internal : %s\n",nome);
 
     pos = searchKey(b->numKeys, b->keys, key);
 
@@ -107,13 +109,15 @@ static bTree bTree_Insert_Internal(bTree b, int key, int *median)
          ///todos os elementos acima do POS sobem um espaco
         memmove(&b->keys[pos+1], &b->keys[pos], sizeof(*(b->keys)) * (b->numKeys - pos));
         b->keys[pos] = key;
+        strcpy(b->nome, nome);
+       // printf("funcao internal 2 : %s\n",b->nome);
         b->numKeys++;
 
     } else
     {
 
        ///insere a creanca///
-        b2 = bTree_Insert_Internal(b->kids[pos], key, &mid);
+        b2 = bTree_Insert_Internal(b->kids[pos], key, &mid, nome);
 
         ///insere uma novo elemento em b
         if(b2)
@@ -127,6 +131,7 @@ static bTree bTree_Insert_Internal(bTree b, int key, int *median)
 
             b->keys[pos] = mid;
             b->kids[pos+1] = b2;
+            strcpy(b->nome, nome);
             b->numKeys++;
         }
     }
@@ -155,13 +160,15 @@ static bTree bTree_Insert_Internal(bTree b, int key, int *median)
     }
 }
 
-void bTree_Insert(bTree b, int key)
+void bTree_Insert(bTree b, double key, char* nome)
 {
     bTree b1;   ///cria da esquerda///
     bTree b2;   ///cria da direita///
     int median;
 
-    b2 = bTree_Insert_Internal(b, key, &median);
+   // printf("funcao insert : %s", nome);
+
+    b2 = bTree_Insert_Internal(b, key, &median, nome);
 
     if(b2)
     {
@@ -193,7 +200,7 @@ void bTree_Print_Keys_TreeMode(bTree b)
             if(!b->isLeaf) bTree_Print_Keys_TreeMode(b->kids[i]);
 
             for(j = 0; j < tabs; j++) printf("\t");
-            printf("%d\n", b->keys[i]);
+            printf("%lf\n", b->keys[i]);
         }
         if(!b->isLeaf) bTree_Print_Keys_TreeMode(b->kids[b->numKeys]);
     }
@@ -212,7 +219,8 @@ void Btree_Print_Keys(bTree b)
             {
             Btree_Print_Keys(b->kids[i]);
             }
-            printf("%d ", b->keys[i]);
+            printf("%lf ", b->keys[i]);
+            printf("%s ", b->nome);
 
         }
         if(b->isLeaf == 0)
@@ -297,7 +305,7 @@ int bTree_Count_Leaf(bTree b)
     return count;
 }
 
-bTree *Btree_Read_File(bTree b)
+/*bTree *Btree_Read_File(bTree b)
 {
     int numero;
 
@@ -316,5 +324,23 @@ bTree *Btree_Read_File(bTree b)
     }
     fclose(file);
     //return b;
-}
+}*/
 
+void read_search_txt_B(bTree raiz ,FILE* result_search_Btree)
+{
+    int number;
+
+    FILE* busca = fopen("search.txt", "r");
+
+    //fscanf(busca, "%d", &number);
+
+    while(!feof(busca))
+    {
+        fscanf(busca, "%d", &number);
+
+        fprintf(result_search_Btree,"%d \n",bTree_Search(raiz, number));
+        //fscanf(busca, "%d", &number);
+
+    }
+    fclose(busca);
+}

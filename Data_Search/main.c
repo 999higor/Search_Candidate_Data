@@ -6,12 +6,13 @@
 #include <time.h>
 
 #include "linear.h"
+#include "BTree.h"
 
 int main()
 {
     setlocale(LC_ALL, "portuguese");
 
-    //bool test = false;
+    bool cpfTest = false;
     int sizeStruct = 0;
     int i=0;
     char percorre[1024];
@@ -22,17 +23,19 @@ int main()
         sizeStruct++;
     }
 
-    //printf("size: %d",sizeStruct);
-    //system("pause");
-
     Candidado *candidato = malloc(sizeStruct*sizeof(Candidado));
 
     fclose(stream);
+
+    bTree b;
+    b = bTree_Create();
 
     int option;
     int option2;
     char line[1024];
     char cpfChar[1024];
+    char nomeBTree[256];
+    double cpfBTree;
     double CPFsearch;
     double tempo=0;
 
@@ -56,6 +59,7 @@ int main()
                         printf("3 - DESTROY - Desalocar a Memória do Vetor\n");
                         printf("0 - Sair\n> ");
                         scanf("%d",&option2);
+
                         switch(option2)
                         {
                             case 1:
@@ -63,7 +67,8 @@ int main()
                                 t_inicial = clock();
 
                                 stream = fopen("consulta.csv", "r");
-                                fgets(line, 1024, stream);
+
+                                fgets(line, 1024, stream); ///flag
 
                                 while (!feof(stream) && fgets(line, 1024, stream))
                                 {
@@ -91,8 +96,6 @@ int main()
                                     free(tmp);
                                     free(tmp2);
                                 }
-                                //printf("valor i %d\n",i);
-                                //printf("vrau : %s  cpf:  %lf",candidato[6].nome, candidato[6].cpf);
                                 fclose(stream);
                                 t_final = clock();
                                 tempo = ((double) (t_final - t_inicial)) /CLOCKS_PER_SEC;
@@ -102,13 +105,11 @@ int main()
                                 break;
 
 
-
-
                             case 2:
-                                //double CPFsearch;
+
                                 printf("\nDigite o CPF: ");
                                 scanf("%lf",&CPFsearch);
-                               // printf("%lf",CPFsearch);
+                                cpfTest = false;
 
                                 for(i = 0; i < sizeStruct; i++)
                                 {
@@ -117,17 +118,37 @@ int main()
                                         printf("CPF Encontrado !\n");
                                         printf("Nome : %s\n",candidato[i].nome);
                                         printf("CPF : %lf\n",candidato[i].cpf);
+                                        cpfTest = true;
                                         break;
                                     }
 
-                                    //printf("CPF Não Encontrado\n");
+                                }
 
-
+                                if(cpfTest == false)
+                                {
+                                    printf("CPF Não Encontrado !\n");
                                 }
 
                                 break;
 
                             case 3:
+                                candidato = NULL;
+                                break;
+
+                            case 4:
+
+                                if(candidato == NULL)
+                                {
+                                    printf("Vetor Vazio !\n");
+                                }else
+                                {
+                                    for(i = 0; i < sizeStruct; i++)
+                                    {
+                                        printf("Nome : %s\n",candidato[i].nome);
+                                        printf("CPF  : %0.lf\n",candidato[i].cpf);
+                                        //system("pause");
+                                    }
+                                }
                                 break;
 
                             case 0:
@@ -137,12 +158,66 @@ int main()
                                 printf("Opção Inválida !\n");
                                 break;
                         }
+                    }while(option2 != 0);
+                    break;
 
-                    }while(option2);
+
 
                 case 2:
+
+                    do{
+                        printf("[ - - - - - - - - - - Sistema de Candidados -- B TREE - - - - - - - - - ]\n");
+                        printf("1 - INSERT - Insere Dados na Árvore\n");
+                        printf("2 - SEARCH - Realizar Busca na Árvore\n");
+                        printf("3 - DESTROY - Desalocar a Memória da Árvore\n");
+                        printf("0 - Sair\n> ");
+                        scanf("%d",&option2);
+
+                        switch(option2)
+                        {
+                            case 1:
+
+                                t_inicial = clock();
+
+                                stream = fopen("consulta.csv", "r");
+
+                                fgets(line, 1024, stream); ///flag
+
+                                while (!feof(stream) && fgets(line, 1024, stream))
+                                {
+
+                                    char* tmp = strdup(line);
+                                    char* tmp2 = strdup(line);
+
+                                    strcpy(nomeBTree, getfield(tmp, 18));
+                                    strcpy(cpfChar, getfield(tmp2 ,21));
+
+
+                                    cpfBTree = atof(cpfChar);
+
+                                    //printf("cpf %lf ",cpfBTree);
+                                   // printf("nome %s\n" ,nomeBTree);
+                                    //system("pause");
+
+                                    bTree_Insert(b, cpfBTree , &nomeBTree);
+
+                                    i++;
+                                    free(tmp);
+                                    free(tmp2);
+                                }
+                                fclose(stream);
+                                t_final = clock();
+                                tempo = ((double) (t_final - t_inicial)) /CLOCKS_PER_SEC;
+                                printf("Time: %lf seg\n",tempo);
+
+                                break;
+                        }
+
+                    }while(option2 !=0);
                     break;
             }
+
+
 
     }while(option !=0);
 
