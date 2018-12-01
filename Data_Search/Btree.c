@@ -77,6 +77,8 @@ int bTree_Search(bTree b, double key)
 
     if(pos < b->numKeys && b->keys[pos] == key)
     {
+        printf("Nome : %s\n" ,b->nome);
+        printf("CPF : %0.lf\n" ,b->keys[pos]);
         return 1;
     } else
     {
@@ -88,7 +90,7 @@ int bTree_Search(bTree b, double key)
 ///insere na arvore
 ///retorna o novo nó direito se ele for dividido
 ///senao retorna 0
-bTree bTree_Insert_Internal(bTree b, int key, int *median, char* nome)
+bTree bTree_Insert_Internal(bTree b, double key, int *median, char* nome)
 {
     int pos;
     int mid;
@@ -108,8 +110,9 @@ bTree bTree_Insert_Internal(bTree b, int key, int *median, char* nome)
 
          ///todos os elementos acima do POS sobem um espaco
         memmove(&b->keys[pos+1], &b->keys[pos], sizeof(*(b->keys)) * (b->numKeys - pos));
-        b->keys[pos] = key;
         strcpy(b->nome, nome);
+        b->keys[pos] = key;
+        //strcpy(b->nome, nome);
        // printf("funcao internal 2 : %s\n",b->nome);
         b->numKeys++;
 
@@ -129,9 +132,10 @@ bTree bTree_Insert_Internal(bTree b, int key, int *median, char* nome)
             ///a nova crianca entra na POS + 1
             memmove(&b->kids[pos+2], &b->kids[pos+1], sizeof(*(b->keys)) * (b->numKeys - pos));
 
+            strcpy(b->nome, nome);
             b->keys[pos] = mid;
             b->kids[pos+1] = b2;
-            strcpy(b->nome, nome);
+
             b->numKeys++;
         }
     }
@@ -184,6 +188,7 @@ void bTree_Insert(bTree b, double key, char* nome)
         b->numKeys = 1;
         b->isLeaf = 0;
         b->keys[0] = median;
+        strcpy(b->nome, nome);
         b->kids[0] = b1;
         b->kids[1] = b2;
     }
@@ -217,10 +222,10 @@ void Btree_Print_Keys(bTree b)
         {
             if(b->isLeaf == 0)
             {
-            Btree_Print_Keys(b->kids[i]);
+                Btree_Print_Keys(b->kids[i]);
             }
-            printf("%lf ", b->keys[i]);
-            printf("%s ", b->nome);
+            printf("CPF :%lf \n", b->keys[i]);
+            printf("Nome : %s \n", b->nome);
 
         }
         if(b->isLeaf == 0)

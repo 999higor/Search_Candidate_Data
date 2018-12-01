@@ -199,7 +199,11 @@ int main()
                                    // printf("nome %s\n" ,nomeBTree);
                                     //system("pause");
 
-                                    bTree_Insert(b, cpfBTree , &nomeBTree);
+                                    bTree_Insert(b, cpfBTree ,nomeBTree);
+
+                                    Btree_Print_Keys(b);
+
+                                    system("pause");
 
                                     i++;
                                     free(tmp);
@@ -211,9 +215,46 @@ int main()
                                 printf("Time: %lf seg\n",tempo);
 
                                 break;
+
+                            case 2:
+                                printf("\nDigite o CPF: ");
+                                scanf("%lf",&CPFsearch);
+
+                                t_inicial = clock();
+
+                                bTree_Search(b, CPFsearch);
+
+                                t_final = clock();
+                                tempo = ((double) (t_final - t_inicial)) /CLOCKS_PER_SEC;
+                                printf("Time: %lf seg\n",tempo);
+                                break;
+
+                            case 3:
+                                bTree_Destroy(b);
+                                printf("Árvore Deletada com Sucesso !\n");
+
+                            case 4:
+                                Btree_Print_Keys(b);
+                                break;
+
+                            case 0:
+                                break;
+
+                            default:
+                                printf("Opção Inválida !\n");
+                                break;
+
                         }
 
+
                     }while(option2 !=0);
+                    break;
+
+                 case 0:
+                    break;
+
+                default:
+                    printf("Opção Inválida !\n");
                     break;
             }
 

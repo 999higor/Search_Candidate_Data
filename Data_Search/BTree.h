@@ -1,7 +1,13 @@
 #ifndef BTREE_H_INCLUDED
 #define BTREE_H_INCLUDED
 
-#define MAX_KEYS 128
+#define MAX_KEYS 8
+
+typedef struct
+{
+    double key;
+    char nome[256];
+}data;
 
 typedef struct btNode *bTree;
 
@@ -11,6 +17,7 @@ struct btNode
     int numKeys;    ///quantas chaves o no contem? ///
     double keys[MAX_KEYS]; ///valor qualquer///
     char nome[256];
+    //data **keys[MAX_KEYS];
     struct btNode *kids[MAX_KEYS+1];  ///creancinhas < keys///
 };
 
@@ -27,7 +34,7 @@ int searchKey(int n, const double *a, double key);
 int bTree_Search(bTree b, double key);
 
 ///faz a insercao interna///
-bTree bTree_Insert_Internal(bTree b, int key, int *median, char* nome);
+bTree bTree_Insert_Internal(bTree b, double key, int *median, char* nome);
 
 ///insere um novo elemento na arvore b///
 void bTree_Insert(bTree b, double key, char* nome);
