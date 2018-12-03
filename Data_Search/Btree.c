@@ -110,12 +110,12 @@ bTree bTree_Insert_Internal(bTree b, double key, int *median, char* nome)
     if(b->isLeaf)
         {
 
-         ///todos os elementos acima do POS sobem um espaco
-        //memmove(&b->keys[pos+1], &b->keys[pos], sizeof(*(b->keys)) * (b->numKeys - pos));
+         //todos os elementos acima do POS sobem um espaco
+        ///memmove(&b->keys[pos+1], &b->keys[pos], sizeof(*(b->keys)) * (b->numKeys - pos));
         for(i = 0; i < b->numKeys - pos ; i++)
         {
-            b->keys[pos+1].key = b->keys[pos].key;
-            strcpy(b->keys[pos].nome,  b->keys[pos+1].nome);
+            b->keys[pos+1+i].key = b->keys[pos+i].key;
+            strcpy(b->keys[pos+i].nome,  b->keys[pos+1+i].nome);
             //b->keys[pos+1].nome = b->keys[pos].nome;
         }
 
@@ -139,22 +139,22 @@ bTree bTree_Insert_Internal(bTree b, double key, int *median, char* nome)
         if(b2)
         {
 
-            ///todo elemento acima do POS sobe um espaco
-            //memmove(&b->keys[pos+1], &b->keys[pos], sizeof(*(b->keys)) * (b->numKeys - pos));
+            //todo elemento acima do POS sobe um espaco
+            ///memmove(&b->keys[pos+1], &b->keys[pos], sizeof(*(b->keys)) * (b->numKeys - pos));
 
             for(i = 0; i < b->numKeys - pos ; i++)
             {
-                b->keys[pos+1].key = b->keys[pos].key;
-                 strcpy(b->keys[pos].nome,  b->keys[pos+1].nome);
+                b->keys[pos+1+i].key = b->keys[pos+i].key;
+                 strcpy(b->keys[pos+i].nome,  b->keys[pos+1+i].nome);
                 //b->keys[pos+1].nome = b->keys[pos].nome;
             }
-            ///a nova crianca entra na POS + 1
-           // memmove(&b->kids[pos+2], &b->kids[pos+1], sizeof(*(b->keys)) * (b->numKeys - pos));
+            //a nova crianca entra na POS + 1
+           /// memmove(&b->kids[pos+2], &b->kids[pos+1], sizeof(*(b->keys)) * (b->numKeys - pos));
 
             for(i = 0; i< b->numKeys - (pos) ; i++)
             {
-                b->keys[pos+2].key = b->keys[pos+1].key;
-                 strcpy(b->keys[pos+1].nome,  b->keys[pos+2].nome);
+                b->keys[pos+2+i].key = b->keys[pos+1+i].key;
+                 strcpy(b->keys[pos+1+i].nome,  b->keys[pos+2+i].nome);
                 //b->keys[pos+2].nome = b->keys[pos+1].nome;
             }
 
@@ -177,7 +177,7 @@ bTree bTree_Insert_Internal(bTree b, double key, int *median, char* nome)
         b2->numKeys = b->numKeys - mid - 1;
         b2->isLeaf = b->isLeaf;
 
-        //memmove(b2->keys, &b->keys[mid+1], sizeof(*(b->keys)) * b2->numKeys);
+        ///memmove(b2->keys, &b->keys[mid+1], sizeof(*(b->keys)) * b2->numKeys);
         for(i = 0; i < b2->numKeys; i++)
         {
             b2->keys[i].key = b->keys[i+mid+1].key;
@@ -186,11 +186,11 @@ bTree bTree_Insert_Internal(bTree b, double key, int *median, char* nome)
 
         if(!b->isLeaf)
         {
-            //memmove(b2->kids, &b->kids[mid+1], sizeof(*(b->kids)) * (b2->numKeys + 1));
+            ///memmove(b2->kids, &b->kids[mid+1], sizeof(*(b->kids)) * (b2->numKeys + 1));
 
             for(i = 0; i < b2->numKeys + 1; i++)
             {
-                b2->kids[i] = b->kids[+mid+1];
+                b2->kids[i] = b->kids[i+mid+1];
             }
         }
 
@@ -263,9 +263,11 @@ void Btree_Print_Keys(bTree b)
             if(b->isLeaf == 0)
             {
                 Btree_Print_Keys(b->kids[i]);
+
             }
-            printf("CPF :%lf \n", b->keys[i].key);
             printf("Nome : %s \n", b->keys[i].nome);
+            printf("CPF :%lf \n", b->keys[i].key);
+            printf("\n");
 
         }
         if(b->isLeaf == 0)
