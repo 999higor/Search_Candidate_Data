@@ -149,6 +149,7 @@ int main()
                                         //system("pause");
                                     }
                                 }
+                                printf("Comparações: %d\n",i);
                                 break;
 
                             case 0:
@@ -201,9 +202,9 @@ int main()
 
                                     bTree_Insert(b, cpfBTree ,nomeBTree);
 
-                                    Btree_Print_Keys(b);
+                                    //Btree_Print_Keys(b);
 
-                                    system("pause");
+                                    //system("pause");
 
                                     i++;
                                     free(tmp);
@@ -230,8 +231,10 @@ int main()
                                 break;
 
                             case 3:
+                                printf("Tamanho : %d\n",bTree_Count_All(b));
                                 bTree_Destroy(b);
                                 printf("Árvore Deletada com Sucesso !\n");
+                                break;
 
                             case 4:
                                 Btree_Print_Keys(b);

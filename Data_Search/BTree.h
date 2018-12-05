@@ -1,7 +1,7 @@
 #ifndef BTREE_H_INCLUDED
 #define BTREE_H_INCLUDED
 
-#define MAX_KEYS 8
+#define MAX_KEYS 32
 typedef struct
 {
     double key;

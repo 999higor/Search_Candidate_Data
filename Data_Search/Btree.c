@@ -66,6 +66,7 @@ void bTree_Destroy(bTree b)
 int bTree_Search(bTree b, double key)
 {
     int pos;
+    int interacao;
 
     if(b->numKeys == 0) ///verifica se a arvore esta vazia///
     {
@@ -77,8 +78,8 @@ int bTree_Search(bTree b, double key)
 
     if(pos < b->numKeys && b->keys[pos].key == key)
     {
-        //printf("Nome : %s\n" ,b->keys[pos].nome);
-        //printf("CPF : %0.lf\n" ,b->keys[pos].key);
+        printf("Nome : %s\n" ,b->keys[pos].nome);
+        printf("CPF : %0.lf\n" ,b->keys[pos].key);
         return 1;
     } else
     {
@@ -95,7 +96,6 @@ bTree bTree_Insert_Internal(bTree b, double key, int *median, char* nome)
     int pos;
     int mid;
     bTree b2;
-    int i;
 
 
    // printf("funcao internal : %s\n",nome);
@@ -111,13 +111,13 @@ bTree bTree_Insert_Internal(bTree b, double key, int *median, char* nome)
         {
 
          //todos os elementos acima do POS sobem um espaco
-        ///memmove(&b->keys[pos+1], &b->keys[pos], sizeof(*(b->keys)) * (b->numKeys - pos));
-        for(i = 0; i < b->numKeys - pos ; i++)
+        memmove(&b->keys[pos+1], &b->keys[pos], sizeof(*(b->keys)) * (b->numKeys - pos));
+        /*for(i = 0; i < b->numKeys - pos ; i++)
         {
             b->keys[pos+1+i].key = b->keys[pos+i].key;
             strcpy(b->keys[pos+i].nome,  b->keys[pos+1+i].nome);
             //b->keys[pos+1].nome = b->keys[pos].nome;
-        }
+        }*/
 
         //printf("aki2   %s \n",nome);
 
@@ -140,23 +140,23 @@ bTree bTree_Insert_Internal(bTree b, double key, int *median, char* nome)
         {
 
             //todo elemento acima do POS sobe um espaco
-            ///memmove(&b->keys[pos+1], &b->keys[pos], sizeof(*(b->keys)) * (b->numKeys - pos));
+            memmove(&b->keys[pos+1], &b->keys[pos], sizeof(*(b->keys)) * (b->numKeys - pos));
 
-            for(i = 0; i < b->numKeys - pos ; i++)
+            /*for(i = 0; i < b->numKeys - pos ; i++)
             {
                 b->keys[pos+1+i].key = b->keys[pos+i].key;
                  strcpy(b->keys[pos+i].nome,  b->keys[pos+1+i].nome);
                 //b->keys[pos+1].nome = b->keys[pos].nome;
-            }
+            }*/
             //a nova crianca entra na POS + 1
-           /// memmove(&b->kids[pos+2], &b->kids[pos+1], sizeof(*(b->keys)) * (b->numKeys - pos));
+            memmove(&b->kids[pos+2], &b->kids[pos+1], sizeof(*(b->keys)) * (b->numKeys - pos));
 
-            for(i = 0; i< b->numKeys - (pos) ; i++)
+            /*for(i = 0; i< b->numKeys - (pos) ; i++)
             {
                 b->keys[pos+2+i].key = b->keys[pos+1+i].key;
                  strcpy(b->keys[pos+1+i].nome,  b->keys[pos+2+i].nome);
                 //b->keys[pos+2].nome = b->keys[pos+1].nome;
-            }
+            }*/
 
             strcpy(b->keys[pos].nome, nome);
             b->keys[pos].key = mid;
@@ -177,21 +177,21 @@ bTree bTree_Insert_Internal(bTree b, double key, int *median, char* nome)
         b2->numKeys = b->numKeys - mid - 1;
         b2->isLeaf = b->isLeaf;
 
-        ///memmove(b2->keys, &b->keys[mid+1], sizeof(*(b->keys)) * b2->numKeys);
-        for(i = 0; i < b2->numKeys; i++)
+        memmove(b2->keys, &b->keys[mid+1], sizeof(*(b->keys)) * b2->numKeys);
+        /*for(i = 0; i < b2->numKeys; i++)
         {
             b2->keys[i].key = b->keys[i+mid+1].key;
             strcpy(b->keys[i].nome,  b->keys[i+mid+1].nome);
-        }
+        }*/
 
         if(!b->isLeaf)
         {
-            ///memmove(b2->kids, &b->kids[mid+1], sizeof(*(b->kids)) * (b2->numKeys + 1));
+            memmove(b2->kids, &b->kids[mid+1], sizeof(*(b->kids)) * (b2->numKeys + 1));
 
-            for(i = 0; i < b2->numKeys + 1; i++)
+            /*for(i = 0; i < b2->numKeys + 1; i++)
             {
                 b2->kids[i] = b->kids[i+mid+1];
-            }
+            }*/
         }
 
         b->numKeys = mid;
@@ -265,9 +265,10 @@ void Btree_Print_Keys(bTree b)
                 Btree_Print_Keys(b->kids[i]);
 
             }
-            printf("Nome : %s \n", b->keys[i].nome);
+            //printf("Nome : %s \n", b->keys[i].nome);
             printf("CPF :%lf \n", b->keys[i].key);
             printf("\n");
+            //system("pause");
 
         }
         if(b->isLeaf == 0)
@@ -318,6 +319,7 @@ int bTree_Height (bTree b)
         b = b->kids[0];
     }
 }
+*/
 
 int bTree_Count_All(bTree b)
 {
@@ -335,7 +337,7 @@ int bTree_Count_All(bTree b)
 
     return count;
 }
-
+/*
 int bTree_Count_Leaf(bTree b)
 {
     int i, count = 0;
