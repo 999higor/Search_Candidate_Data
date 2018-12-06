@@ -1,7 +1,7 @@
 #ifndef BTREE_H_INCLUDED
 #define BTREE_H_INCLUDED
 
-#define MAX_KEYS 32
+#define MAX_KEYS 4
 typedef struct
 {
     double key;
@@ -33,7 +33,7 @@ int searchKey(int n, data *a, double key);
 int bTree_Search(bTree b, double key);
 
 ///faz a insercao interna///
-bTree bTree_Insert_Internal(bTree b, double key, int *median, char* nome);
+bTree bTree_Insert_Internal(bTree b, double key, double *median, char* nome);
 
 ///insere um novo elemento na arvore b///
 void bTree_Insert(bTree b, double key, char* nome);

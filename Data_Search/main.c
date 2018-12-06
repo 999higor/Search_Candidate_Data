@@ -196,15 +196,16 @@ int main()
 
                                     cpfBTree = atof(cpfChar);
 
-                                    //printf("cpf %lf ",cpfBTree);
-                                   // printf("nome %s\n" ,nomeBTree);
+                                    //printf("cpf %lf \n",cpfBTree);
+                                    //printf("nome %s\n" ,nomeBTree);
                                     //system("pause");
 
                                     bTree_Insert(b, cpfBTree ,nomeBTree);
 
-                                    //Btree_Print_Keys(b);
+                                    Btree_Print_Keys(b);
 
-                                    //system("pause");
+                                    system("pause");
+                                    system("cls");
 
                                     i++;
                                     free(tmp);
@@ -265,5 +266,7 @@ int main()
 
     }while(option !=0);
 
+
+    return 0;
 
 }

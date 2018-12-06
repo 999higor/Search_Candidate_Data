@@ -66,7 +66,7 @@ void bTree_Destroy(bTree b)
 int bTree_Search(bTree b, double key)
 {
     int pos;
-    int interacao;
+    //int interacao;
 
     if(b->numKeys == 0) ///verifica se a arvore esta vazia///
     {
@@ -91,7 +91,7 @@ int bTree_Search(bTree b, double key)
 ///insere na arvore
 ///retorna o novo nó direito se ele for dividido
 ///senao retorna 0
-bTree bTree_Insert_Internal(bTree b, double key, int *median, char* nome)
+bTree bTree_Insert_Internal(bTree b, double key, double *median, char* nome)
 {
     int pos;
     int mid;
@@ -109,7 +109,7 @@ bTree bTree_Insert_Internal(bTree b, double key, int *median, char* nome)
 
     if(b->isLeaf)
         {
-
+            printf("Entrou 01\n");
          //todos os elementos acima do POS sobem um espaco
         memmove(&b->keys[pos+1], &b->keys[pos], sizeof(*(b->keys)) * (b->numKeys - pos));
         /*for(i = 0; i < b->numKeys - pos ; i++)
@@ -131,7 +131,7 @@ bTree bTree_Insert_Internal(bTree b, double key, int *median, char* nome)
 
     } else
     {
-
+        printf("Entrou 02\n");
        ///insere a creanca///
         b2 = bTree_Insert_Internal(b->kids[pos], key, &mid, nome);
 
@@ -168,9 +168,15 @@ bTree bTree_Insert_Internal(bTree b, double key, int *median, char* nome)
     ///se atingir o valor maximo cai aqui///
     if(b->numKeys >= MAX_KEYS)
     {
+        printf("Entrou 3\n");
         mid = b->numKeys/2;
 
+        printf("B %lf \n",b->keys[mid].key);
+
         *median = b->keys[mid].key;
+        strcpy(nome, b->keys[mid].nome);
+
+        printf("Median %lf\n",*median);
 
         b2 = malloc(sizeof(*b2));
 
@@ -186,6 +192,7 @@ bTree bTree_Insert_Internal(bTree b, double key, int *median, char* nome)
 
         if(!b->isLeaf)
         {
+            printf("Entrou 4\n");
             memmove(b2->kids, &b->kids[mid+1], sizeof(*(b->kids)) * (b2->numKeys + 1));
 
             /*for(i = 0; i < b2->numKeys + 1; i++)
@@ -197,7 +204,8 @@ bTree bTree_Insert_Internal(bTree b, double key, int *median, char* nome)
         b->numKeys = mid;
 
         return b2;
-    } else {
+    } else
+    {
         return 0;
     }
 }
@@ -206,7 +214,7 @@ void bTree_Insert(bTree b, double key, char* nome)
 {
     bTree b1;   ///cria da esquerda///
     bTree b2;   ///cria da direita///
-    int median;
+    double median;
 
     //printf("funcao insert : %s", nome);
 
@@ -265,7 +273,7 @@ void Btree_Print_Keys(bTree b)
                 Btree_Print_Keys(b->kids[i]);
 
             }
-            //printf("Nome : %s \n", b->keys[i].nome);
+            printf("Nome : %s \n", b->keys[i].nome);
             printf("CPF :%lf \n", b->keys[i].key);
             printf("\n");
             //system("pause");
