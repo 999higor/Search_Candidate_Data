@@ -1,405 +1,356 @@
-#include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
+#include <math.h>
 #include <string.h>
-
 #include "BTree.h"
 
-
-bTree bTree_Create(void)
-{
-    bTree b;
-
-    b = malloc(sizeof(*b));
-    assert(b);
-
-    b->isLeaf = 1;
-    b->numKeys = 0;
-
-    return b;
-}
-
-void bTree_Destroy(bTree b)
-{
-    int i;
-
-    if(!b->isLeaf)
-    {
-        for(i = 0; i < b->numKeys + 1; i++)
-        {
-            bTree_Destroy(b->kids[i]);
-        }
-    }
-
-    free(b);
-}
-
-///retorna o menor indice i no array
- int searchKey(int n, data *a, double key)
-{
-    int lo;
-    int hi;
-    int mid;
-
-
-    lo = -1;
-    hi = n;
-
-    while(lo + 1 < hi)
-    {
-        mid = (lo+hi)/2;
-        if(a[mid].key == key)
-        {
-            return mid;
-        } else if(a[mid].key < key)
-        {
-            lo = mid;
-        } else
-        {
-            hi = mid;
-        }
-    }
-
-    return hi;
-}
-
-int bTree_Search(bTree b, double key)
-{
-    int pos;
-    //int interacao;
-
-    if(b->numKeys == 0) ///verifica se a arvore esta vazia///
-    {
-        return 0;
-    }
-
-    ///procura a menor posicao que a key pode entrar///
-    pos = searchKey(b->numKeys, b->keys, key);
-
-    if(pos < b->numKeys && b->keys[pos].key == key)
-    {
-        printf("Nome : %s\n" ,b->keys[pos].nome);
-        printf("CPF : %0.lf\n" ,b->keys[pos].key);
-        return 1;
-    } else
-    {
-        return(!b->isLeaf && bTree_Search(b->kids[pos], key));
-    }
-
-}
-
-///insere na arvore
-///retorna o novo nó direito se ele for dividido
-///senao retorna 0
-bTree bTree_Insert_Internal(bTree b, double key, double *median, char* nome)
-{
-    int pos;
-    int mid;
-    bTree b2;
-
-
-   // printf("funcao internal : %s\n",nome);
-
-    pos = searchKey(b->numKeys, b->keys, key);
-
-    if(pos < b->numKeys && b->keys[pos].key == key) ///se cair aqui, nao ha nada a se fazer///
-    {
-        return 0;
-    }
-
-    if(b->isLeaf)
-        {
-            printf("Entrou 01\n");
-         //todos os elementos acima do POS sobem um espaco
-        memmove(&b->keys[pos+1], &b->keys[pos], sizeof(*(b->keys)) * (b->numKeys - pos));
-        /*for(i = 0; i < b->numKeys - pos ; i++)
-        {
-            b->keys[pos+1+i].key = b->keys[pos+i].key;
-            strcpy(b->keys[pos+i].nome,  b->keys[pos+1+i].nome);
-            //b->keys[pos+1].nome = b->keys[pos].nome;
-        }*/
-
-        //printf("aki2   %s \n",nome);
-
-        strcpy(b->keys[pos].nome, nome);
-
-        //printf("aki 3\n");
-        b->keys[pos].key = key;
-        //strcpy(b->nome, nome);
-        //printf("funcao internal 2 : %s\n",b->keys[pos].nome);
-        b->numKeys++;
-
-    } else
-    {
-        printf("Entrou 02\n");
-       ///insere a creanca///
-        b2 = bTree_Insert_Internal(b->kids[pos], key, &mid, nome);
-
-        ///insere uma novo elemento em b
-        if(b2)
-        {
-
-            //todo elemento acima do POS sobe um espaco
-            memmove(&b->keys[pos+1], &b->keys[pos], sizeof(*(b->keys)) * (b->numKeys - pos));
-
-            /*for(i = 0; i < b->numKeys - pos ; i++)
-            {
-                b->keys[pos+1+i].key = b->keys[pos+i].key;
-                 strcpy(b->keys[pos+i].nome,  b->keys[pos+1+i].nome);
-                //b->keys[pos+1].nome = b->keys[pos].nome;
-            }*/
-            //a nova crianca entra na POS + 1
-            memmove(&b->kids[pos+2], &b->kids[pos+1], sizeof(*(b->keys)) * (b->numKeys - pos));
-
-            /*for(i = 0; i< b->numKeys - (pos) ; i++)
-            {
-                b->keys[pos+2+i].key = b->keys[pos+1+i].key;
-                 strcpy(b->keys[pos+1+i].nome,  b->keys[pos+2+i].nome);
-                //b->keys[pos+2].nome = b->keys[pos+1].nome;
-            }*/
-
-            strcpy(b->keys[pos].nome, nome);
-            b->keys[pos].key = mid;
-            b->kids[pos+1] = b2;
-
-            b->numKeys++;
-        }
-    }
-    ///se atingir o valor maximo cai aqui///
-    if(b->numKeys >= MAX_KEYS)
-    {
-        printf("Entrou 3\n");
-        mid = b->numKeys/2;
-
-        printf("B %lf \n",b->keys[mid].key);
-
-        *median = b->keys[mid].key;
-        strcpy(nome, b->keys[mid].nome);
-
-        printf("Median %lf\n",*median);
-
-        b2 = malloc(sizeof(*b2));
-
-        b2->numKeys = b->numKeys - mid - 1;
-        b2->isLeaf = b->isLeaf;
-
-        memmove(b2->keys, &b->keys[mid+1], sizeof(*(b->keys)) * b2->numKeys);
-        /*for(i = 0; i < b2->numKeys; i++)
-        {
-            b2->keys[i].key = b->keys[i+mid+1].key;
-            strcpy(b->keys[i].nome,  b->keys[i+mid+1].nome);
-        }*/
-
-        if(!b->isLeaf)
-        {
-            printf("Entrou 4\n");
-            memmove(b2->kids, &b->kids[mid+1], sizeof(*(b->kids)) * (b2->numKeys + 1));
-
-            /*for(i = 0; i < b2->numKeys + 1; i++)
-            {
-                b2->kids[i] = b->kids[i+mid+1];
-            }*/
-        }
-
-        b->numKeys = mid;
-
-        return b2;
-    } else
-    {
-        return 0;
-    }
-}
-
-void bTree_Insert(bTree b, double key, char* nome)
-{
-    bTree b1;   ///cria da esquerda///
-    bTree b2;   ///cria da direita///
-    double median;
-
-    //printf("funcao insert : %s", nome);
-
-    b2 = bTree_Insert_Internal(b, key, &median, nome);
-
-    if(b2)
-    {
-      ///se for dividido, é criado um novo root
-
-        b1 = malloc(sizeof(*b1));
-        assert(b1);
-
-        /// copia o root de b1
-        memmove(b1, b, sizeof(*b));
-
-    ///cria os ponteiros de b1 e b2
-        b->numKeys = 1;
-        b->isLeaf = 0;
-        b->keys[0].key = median;
-        strcpy(b->keys[0].nome, nome);
-        b->kids[0] = b1;
-        b->kids[1] = b2;
-    }
-}
-
-/*
+const int AVG_KEY_INDEX = MAX_KEYS >> 1;
+const int MIN_DEGREE = (MAX_KEYS + 1) >> 1;
 int tabs = -1;
-void bTree_Print_Keys_TreeMode(bTree b)
+
+void bt_valueArrayOpenGap(void *arr[], int s, int index)
 {
-
-    int i, j;
-    if(b != NULL)
-    {
-        tabs++;
-        for(i = 0; i < b->numKeys; i++) {
-            if(!b->isLeaf) bTree_Print_Keys_TreeMode(b->kids[i]);
-
-            for(j = 0; j < tabs; j++) printf("\t");
-            printf("%lf\n", b->keys[i]->key);
-        }
-        if(!b->isLeaf) bTree_Print_Keys_TreeMode(b->kids[b->numKeys]);
-    }
-    tabs--;
-
-}*/
-
-void Btree_Print_Keys(bTree b)
-{
-    int i;
-    if(b != NULL)
-    {
-        for(i=0; i<b->numKeys; i++)
-        {
-            if(b->isLeaf == 0)
-            {
-                Btree_Print_Keys(b->kids[i]);
-
-            }
-            printf("Nome : %s \n", b->keys[i].nome);
-            printf("CPF :%lf \n", b->keys[i].key);
-            printf("\n");
-            //system("pause");
-
-        }
-        if(b->isLeaf == 0)
-       Btree_Print_Keys(b->kids[b->numKeys]);
-    }
+	memmove(arr+index+1, arr+index, (s-index-1) * sizeof(void *));
 }
 
-/*
-int bTree_MAX (bTree b)
+void bt_valueArrayCloseGap(void *arr[], int s, int index)
 {
-    assert(b && b->numKeys > 0);
-    for(;;)
-    {
-        if(b->isLeaf || !b->kids[b->numKeys])
-        {
-        return b->keys[b->numKeys -1];
-        }
-        b = b->kids[b->numKeys];
-    }
+	memmove(arr+index, arr+index+1, (s-index-1) * sizeof(void *));
 }
 
-int bTree_MIN (bTree b)
+int bt_valueArrayInsert(void *arr[], int s, int n, void *value, bt_compareCallback cmp)
 {
-    assert(b && b->numKeys > 0);
-    for(;;)
-    {
-        if(b->isLeaf || !b->kids[0])
-        {
-            return b->keys[0];
-        }
-        b = b->kids[0];
-    }
+	int i;
+	for(i = 0; i < n; i++) {
+		if(cmp(arr[i], value) == 0)
+			return 0;
+		if(cmp(arr[i], value) > 0) {
+			bt_valueArrayOpenGap(arr, s, i);
+			break;
+		}
+	}
+
+	arr[i] = value;
+	return 1;
 }
 
-int bTree_Height (bTree b)
+void bt_nodeArrayOpenGap(bt_Node *arr[], int s, int index)
 {
-    int count = -1;
-
-    if(b == NULL) return count;
-
-    for(;;)
-    {
-        count++;
-        if(b->isLeaf == 1)
-        {
-            return count;
-        }
-        b = b->kids[0];
-    }
+	memmove(arr+index+1, arr+index, (s-index-1) * sizeof(bt_Node *));
 }
-*/
 
-int bTree_Count_All(bTree b)
+void bt_nodeArrayCloseGap(bt_Node *arr[], int s, int index)
 {
-    int i, count = 0;
-    if(b != NULL)
-    {
-        if(b->isLeaf == 0) {
-            for(i=0; i<b->numKeys+1; i++)
-            {
-                count += bTree_Count_All(b->kids[i]);
-            }
-        }
-        count += b->numKeys;
-    }
-
-    return count;
+	memmove(arr+index, arr+index+1, (s-index-1) * sizeof(bt_Node *));
 }
-/*
-int bTree_Count_Leaf(bTree b)
-{
-    int i, count = 0;
-    if(b != NULL)
-    {
-        if(b->isLeaf == 0) {
-            for(i=0; i<b->numKeys+1; i++)
-            {
-                count += bTree_Count_Leaf(b->kids[i]);
-            }
-        }else
-            count++;
-    }
 
-    return count;
+void bt_nodeArrayPrint(bt_Node *arr[], int n)
+{
+	int i;
+	for(i = 0; i < n; i++)
+		printf("%p ", arr[i]);
+	printf("\n");
 }
-*/
 
-/*bTree *Btree_Read_File(bTree b)
+bt_Tree *bt_newTree(bt_compareCallback cmpCb, bt_freeCallback freeCb)
 {
-    int numero;
+	bt_Tree *t = (bt_Tree *)malloc(sizeof(bt_Tree));
+	t->root = NULL;
+	t->cmpCb = cmpCb;
+	t->freeCb = freeCb;
+	// t->typeSize = typeSize;
+	return t;
+}
 
-    FILE* file = fopen ("values.txt", "r");
-
-    //fscanf (file, "%d", &numero);
-
-    while (!feof(file)){
-
-        fscanf(file, "%d", &numero);
-
-        bTree_Insert(b, numero);
-
-        //fscanf(file, "%d", &numero);
-
-    }
-    fclose(file);
-    //return b;
-}*/
-
-void read_search_txt_B(bTree raiz ,FILE* result_search_Btree)
+bt_Node *bt_newNode(int isLeaf)
 {
-    int number;
+	bt_Node *temp = (bt_Node *)malloc(sizeof(bt_Node));
+	temp->isLeaf = isLeaf;
+	temp->numKeys = 0;
+	int i;
+	for(i = 0; i < MAX_KEYS+1; i++)
+		temp->children[i] = NULL;
 
-    FILE* busca = fopen("search.txt", "r");
+	return temp;
+}
 
-    //fscanf(busca, "%d", &number);
+void bt_free(bt_Tree *tree)
+{
+	bt_freeAux(tree, tree->root);
+	free(tree);
+}
 
-    while(!feof(busca))
-    {
-        fscanf(busca, "%d", &number);
+void bt_freeAux(bt_Tree *tree, bt_Node *root)
+{
+	if(root != NULL) {
+		int i;
+		for(i = 0; i < root->numKeys; i++) {
+			bt_freeAux(tree, root->children[i]);
+			tree->freeCb(root->keys[i]);
+		}
+		bt_freeAux(tree, root->children[i]);
 
-        fprintf(result_search_Btree,"%d \n",bTree_Search(raiz, number));
-        //fscanf(busca, "%d", &number);
+		free(root);
+	}
+}
 
-    }
-    fclose(busca);
+void bt_insert(bt_Tree *tree, void *value)
+{
+	if(tree->root == NULL) {
+		tree->root = bt_newNode(1);
+		tree->root->keys[0] = value;
+		tree->root->numKeys++;
+	} else {
+		bt_insertNonRoot(tree, tree->root, value);
+
+		if(tree->root->numKeys == MAX_KEYS) {
+			bt_Node *newRoot = bt_newNode(0);
+			newRoot->children[0] = tree->root;
+			bt_splitChild(tree, newRoot, 0);
+			tree->root = newRoot;
+		}
+	}
+}
+
+void bt_insertNonRoot(bt_Tree *tree, bt_Node *root, void *value)
+{
+	int i;
+
+	if(root->isLeaf) {
+		if(bt_valueArrayInsert(root->keys, MAX_KEYS, root->numKeys, value, tree->cmpCb) == 1)
+			root->numKeys++;
+	}
+	else {
+		for(i = 0; i < root->numKeys && tree->cmpCb(root->keys[i], value) < 0; i++);
+		if(i < root->numKeys && tree->cmpCb(root->keys[i], value) == 0)
+			return;
+
+		bt_insertNonRoot(tree, root->children[i], value);
+
+		if(root->children[i]->numKeys == MAX_KEYS)
+			bt_splitChild(tree, root, i);
+	}
+}
+
+void bt_splitChild(bt_Tree *tree, bt_Node *root, int index)
+{
+	bt_Node *l = root->children[index];
+	bt_Node *r = bt_newNode(l->isLeaf);
+	int firstI = AVG_KEY_INDEX+1;
+
+	memmove(r->keys, &l->keys[firstI], (MAX_KEYS-firstI) * sizeof(void *));
+	memmove(r->children, &l->children[firstI], (MAX_KEYS-firstI+1) * sizeof(bt_Node *));
+	r->numKeys = l->numKeys - firstI;
+	l->numKeys = AVG_KEY_INDEX;
+
+	bt_valueArrayOpenGap(root->keys, MAX_KEYS, index);
+	root->keys[index] = l->keys[AVG_KEY_INDEX];
+
+	bt_nodeArrayOpenGap(root->children, MAX_KEYS+1, index+1);
+	root->children[index+1] = r;
+	root->numKeys++;
+}
+
+void bt_fprintNode(bt_Node *root, FILE *fp, bt_toStrCallback toStr)
+{
+	int j;
+	if(root != NULL) {
+		tabs++;
+		int i;
+		for(i = 0; i < root->numKeys; i++) {
+			if(root->isLeaf == 0) bt_fprintNode(root->children[i], fp, toStr);
+			for(j = 0; j < tabs; j++) fprintf(fp, "\t");
+			fprintf(fp, "%s\n", toStr(root->keys[i]));
+		}
+		if(root->isLeaf == 0) bt_fprintNode(root->children[root->numKeys], fp, toStr);
+		tabs--;
+	}
+	else {
+		for(j = 0; j < tabs; j++) fprintf(fp, "\t");
+		fprintf(fp, "<empty>\n");
+	}
+}
+
+void bt_remove(bt_Tree *tree, void *value)
+{
+	if(tree->root != NULL) {
+		bt_removeNonRoot(tree, tree->root, value);
+
+		if(tree->root->numKeys == 0) {
+			bt_Node *temp = tree->root;
+			if(tree->root->isLeaf)
+				tree->root = NULL;
+			else
+				tree->root = tree->root->children[0];
+
+			free(temp);
+		}
+	}
+}
+
+void bt_removeNonRoot(bt_Tree *tree, bt_Node * root, void *value)
+{
+	int idx;
+	for(idx = 0; idx < root->numKeys && tree->cmpCb(root->keys[idx], value) < 0; idx++);
+
+	if(idx < root->numKeys && tree->cmpCb(root->keys[idx], value) == 0) {
+		if(root->isLeaf) {
+			bt_valueArrayCloseGap(root->keys, MAX_KEYS, idx);
+			root->numKeys--;
+		} else {
+			bt_removeFromNonLeaf(tree, root, idx);
+		}
+	} else if(!root->isLeaf) {
+		int flag = (idx == root->numKeys);
+
+		if(root->children[idx]->numKeys < MIN_DEGREE)
+			bt_fillNode(root, idx);
+
+		if(flag && idx > root->numKeys)
+			bt_removeNonRoot(tree, root->children[idx-1], value);
+		else
+			bt_removeNonRoot(tree, root->children[idx], value);
+	}
+}
+
+void bt_removeFromNonLeaf(bt_Tree *tree, bt_Node *root, int idx) {
+	if(root->children[idx]->numKeys >= MIN_DEGREE) {
+		void *pred = bt_getPred(root, idx);
+		root->keys[idx] = pred;
+		bt_removeNonRoot(tree, root->children[idx], pred);
+	} else if(root->children[idx+1]->numKeys >= MIN_DEGREE) {
+		void *succ = bt_getSucc(root, idx);
+		root->keys[idx] = succ;
+		bt_removeNonRoot(tree, root->children[idx+1], succ);
+	} else {
+		void *value = root->keys[idx];
+		bt_merge(root, idx);
+		bt_removeNonRoot(tree, root->children[idx], value);
+	}
+}
+
+void *bt_getPred(bt_Node *root, int idx)
+{
+	bt_Node *cur = root->children[idx];
+	while(!cur->isLeaf)
+		cur = cur->children[cur->numKeys];
+
+	return cur->keys[cur->numKeys-1];
+}
+
+void *bt_getSucc(bt_Node *root, int idx)
+{
+	bt_Node *cur = root->children[idx+1];
+	while(!cur->isLeaf)
+		cur = cur->children[0];
+
+	return cur->keys[0];
+}
+
+void bt_merge(bt_Node *root, int idx)
+{
+	bt_Node *child = root->children[idx];
+	bt_Node *sibling = root->children[idx+1];
+
+	child->keys[MIN_DEGREE-1] = root->keys[idx];
+	//memmove(child->keys+MIN_DEGREE, sibling->keys, sibling->numKeys*sizeof(int));
+	int i;
+	for(i = 0; i < sibling->numKeys; i++) {
+		child->keys[i+MIN_DEGREE] = sibling->keys[i];
+	}
+	if(!child->isLeaf) {
+		//memmove(child->children+MIN_DEGREE, sibling->children, (sibling->numKeys+1)*sizeof(bt_Node *));
+		for(i = 0; i < sibling->numKeys+1; i++) {
+			child->children[i+MIN_DEGREE] = sibling->children[i];
+		}
+	}
+	bt_valueArrayCloseGap(root->keys, MAX_KEYS, idx);
+	bt_nodeArrayCloseGap(root->children, MAX_KEYS+1, idx+1);
+	child->numKeys += sibling->numKeys + 1;
+	root->numKeys--;
+	free(sibling);
+}
+
+void bt_fillNode(bt_Node *root, int idx)
+{
+	if(idx > 0 && root->children[idx-1]->numKeys >= MIN_DEGREE)
+		bt_borrowFromPrev(root, idx);
+	else if(idx < root->numKeys && root->children[idx+1]->numKeys >= MIN_DEGREE)
+		bt_borrowFromNext(root, idx);
+	else {
+		if(idx < root->numKeys)
+			bt_merge(root, idx);
+		else
+			bt_merge(root, idx-1);
+	}
+}
+
+void bt_borrowFromPrev(bt_Node *root, int idx)
+{
+	bt_Node *child = root->children[idx];
+	bt_Node *sibling = root->children[idx-1];
+
+	bt_valueArrayOpenGap(child->keys, MAX_KEYS, 0);
+	if(!child->isLeaf)
+		bt_nodeArrayOpenGap(child->children, MAX_KEYS+1, 0);
+
+	child->keys[0] = root->keys[idx-1];
+	if(!child->isLeaf)
+		child->children[0] = sibling->children[sibling->numKeys];
+
+	root->keys[idx-1] = sibling->keys[sibling->numKeys-1];
+	sibling->numKeys--;
+	child->numKeys++;
+}
+
+
+void bt_borrowFromNext(bt_Node *root, int idx)
+{
+	bt_Node *child = root->children[idx];
+	bt_Node *sibling = root->children[idx+1];
+
+	child->keys[child->numKeys] = root->keys[idx];
+	if(!child->isLeaf)
+		child->children[child->numKeys+1] = sibling->children[0];
+
+	root->keys[idx] = sibling->keys[0];
+	bt_valueArrayCloseGap(sibling->keys, MAX_KEYS, 0);
+	if(!sibling->isLeaf)
+		bt_nodeArrayCloseGap(sibling->children, MAX_KEYS+1, 0);
+
+	sibling->numKeys--;
+	child->numKeys++;
+}
+
+void *bt_search(bt_Tree *tree, void *value)
+{
+	return bt_searchAux(tree, tree->root, value);
+}
+
+void *bt_searchAux(bt_Tree *tree, bt_Node *root, void *value)
+{
+	int i = 0;
+	while(i < root->numKeys && tree->cmpCb(root->keys[i], value) < 0)
+		i++;
+
+	if(i < root->numKeys && tree->cmpCb(root->keys[i], value) == 0)
+		return root->keys[i];
+
+	if(root->isLeaf == 0)
+		return bt_searchAux(tree, root->children[i], value);
+
+	return NULL;
+}
+
+int bt_getHeight(bt_Node *root)
+{
+	if(root == NULL)
+		return -1;
+
+	int i = 0;
+	while(root->isLeaf == 0) {
+		i++;
+		root = root->children[0];
+	}
+
+	return i;
 }

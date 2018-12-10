@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1544017952 source:d:\users\higor\documents\github\search_candidate_data\data_search\main.c
+1544473167 source:d:\users\higor\documents\github\search_candidate_data\data_search\main.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
@@ -9,19 +9,19 @@
 	"linear.h"
 	"BTree.h"
 
-1544018118 source:d:\users\higor\documents\github\search_candidate_data\data_search\btree.c
-	<stdio.h>
+1544473167 source:d:\users\higor\documents\github\search_candidate_data\data_search\btree.c
 	<stdlib.h>
-	<assert.h>
+	<math.h>
 	<string.h>
 	"BTree.h"
 
-1544018302 d:\users\higor\documents\github\search_candidate_data\data_search\btree.h
+1544473167 d:\users\higor\documents\github\search_candidate_data\data_search\btree.h
+	<stdio.h>
 
-1543426002 source:d:\users\higor\documents\github\search_candidate_data\data_search\linear.c
+1544473265 source:d:\users\higor\documents\github\search_candidate_data\data_search\linear.c
 	"linear.h"
 
-1543437259 d:\users\higor\documents\github\search_candidate_data\data_search\linear.h
+1544473265 d:\users\higor\documents\github\search_candidate_data\data_search\linear.h
 	<stdio.h>
 	<stdlib.h>
 	<string.h>

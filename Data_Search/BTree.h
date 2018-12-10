@@ -1,67 +1,61 @@
-#ifndef BTREE_H_INCLUDED
-#define BTREE_H_INCLUDED
+#ifndef BT_H
+#define BT_H
 
-#define MAX_KEYS 4
-typedef struct
+
+#include <stdio.h>
+
+#define MAX_KEYS (16)
+extern const int AVG_KEY_INDEX;
+
+typedef int (*bt_compareCallback)(void *a, void *b);
+typedef void (*bt_freeCallback)(void *a);
+typedef const char *(*bt_toStrCallback)(void *a);
+
+typedef struct _struct_bt_Node
 {
-    double key;
-    char nome[256];
-}data;
+	int isLeaf;
+	int numKeys;
+	void *keys[MAX_KEYS];
+	struct _struct_bt_Node *children[MAX_KEYS+1];
+} bt_Node;
 
-typedef struct btNode *bTree;
-
-struct btNode
+typedef struct _struct_bt_Tree
 {
-    int isLeaf;     ///e ou nao e no, eis a questao///
-    int numKeys;    ///quantas chaves o no contem? ///
-    //double keys[MAX_KEYS]; ///valor qualquer///
-    //char nome[256];
-    data keys[MAX_KEYS];
-    struct btNode *kids[MAX_KEYS+1];  ///creancinhas < keys///
-};
+	bt_Node *root;
+	bt_compareCallback cmpCb;
+	bt_freeCallback freeCb;
+	size_t typeSize;
+} bt_Tree;
 
-///cria uma arvore b vazia ///
-bTree bTree_Create(void);
+void bt_valueArrayOpenGap(void *arr[], int s, int index);
+void bt_valueArrayCloseGap(void *arr[], int s, int index);
+int bt_valueArrayInsert(void *arr[], int s, int n, void *value, bt_compareCallback cmp);
+void bt_valueArrayPrint(int arr[], int n);
 
-///taca fogo na arvore e destroi ela///
-void bTree_Destroy(bTree b);
+void bt_nodeArrayOpenGap(bt_Node *arr[], int n, int index);
+void bt_nodeArrayCloseGap(bt_Node *arr[], int n, int index);
+void bt_nodeArrayPrint(bt_Node *arr[], int n);
 
-///procura um valor na arvore///
-int searchKey(int n, data *a, double key);
+bt_Tree *bt_newTree(bt_compareCallback cmpCb, bt_freeCallback freeCb);
+bt_Node *bt_newNode(int isLeaf);
+void bt_free(bt_Tree *tree);
+void bt_freeAux(bt_Tree *tree, bt_Node *root);
+void bt_insert(bt_Tree *tree, void *value);
+void bt_insertNonRoot(bt_Tree *tree, bt_Node *root, void *value);
+void bt_splitChild(bt_Tree *tree, bt_Node *root, int index);
+void bt_fprintNode(bt_Node *root, FILE *fp, bt_toStrCallback);
+#define bt_printNode(root, toStr) bt_fprintNode(root, stdout, toStr)
+void bt_remove(bt_Tree *tree, void *value);
+void bt_removeNonRoot(bt_Tree *tree, bt_Node *root, void *value);
+void bt_removeFromNonLeaf(bt_Tree *tree, bt_Node *root, int idx);
+void *bt_getPred(bt_Node *root, int idx);
+void *bt_getSucc(bt_Node *root, int idx);
+void bt_merge(bt_Node *root, int idx);
+void bt_fillNode(bt_Node *root, int idx);
+void bt_borrowFromPrev(bt_Node *root, int idx);
+void bt_borrowFromNext(bt_Node *root, int idx);
+void *bt_search(bt_Tree *tree, void *value);
+void *bt_searchAux(bt_Tree *tree, bt_Node *root, void *value);
+int bt_getHeight(bt_Node *root);
 
-///retorna um valor !0 se a key estiver na arvore b///
-int bTree_Search(bTree b, double key);
-
-///faz a insercao interna///
-bTree bTree_Insert_Internal(bTree b, double key, double *median, char* nome);
-
-///insere um novo elemento na arvore b///
-void bTree_Insert(bTree b, double key, char* nome);
-
-///imprime os valores da arvore b em forma de arvore///
-void bTree_Print_Keys_TreeMode(bTree b);
-
-///imprime os valores da arvore b///
-void Btree_Print_Keys(bTree b);
-
-///retorna o maior valor na arvore///
-int bTree_MAX (bTree b);
-
-///retorna o menor valor na arvore///
-int bTree_MIN (bTree b);
-
-///retona a altura da arvore///
-int bTree_Height (bTree b);
-
-///conta todos os valores na arvore///
-int bTree_Count_All(bTree b);
-
-///conta as folhas da arvore///
-int bTree_Count_Leaf(bTree b);
-
-///faz a leitura de um arquivo///
-bTree *Btree_Read_File(bTree b);
-
-void read_search_txt_B(bTree raiz, FILE* result_search_Btree);
-
-#endif // BTREE_H_INCLUDED
+#endif // BT_H

@@ -8,6 +8,7 @@
 #include "linear.h"
 #include "BTree.h"
 
+
 int main()
 {
     setlocale(LC_ALL, "portuguese");
@@ -17,26 +18,18 @@ int main()
     int i=0;
     char percorre[1024];
 
-    FILE* stream = fopen("consulta.csv", "r");
-    while(fgets(percorre, 1024, stream) !=  NULL)
-    {
-        sizeStruct++;
-    }
+    FILE* stream;
 
-    Candidado *candidato = malloc(sizeStruct*sizeof(Candidado));
+    Candidato *candidato = NULL;
 
-    fclose(stream);
-
-    bTree b;
-    b = bTree_Create();
+    bt_Tree *bt = bt_newTree(CandidatoCMP, free);
 
     int option;
     int option2;
     char line[1024];
     char cpfChar[1024];
     char nomeBTree[256];
-    double cpfBTree;
-    double CPFsearch;
+    char CPFsearch[256];
     double tempo=0;
 
     clock_t t_inicial, t_final;
@@ -64,33 +57,36 @@ int main()
                         {
                             case 1:
 
+                                stream = fopen("consulta.csv", "r");
+                                while(fgets(percorre, 1024, stream) !=  NULL)
+                                {
+                                    sizeStruct++;
+                                }
+
+                                if(candidato != NULL)
+                                {
+                                    free(candidato);
+                                }
+                                candidato = malloc(sizeStruct*sizeof(Candidato));
+                                fclose(stream);
+
+
                                 t_inicial = clock();
 
                                 stream = fopen("consulta.csv", "r");
 
                                 fgets(line, 1024, stream); ///flag
 
+                                i = 0;
+
                                 while (!feof(stream) && fgets(line, 1024, stream))
                                 {
-                                    /*if(test != true)
-                                    {
-                                        fgets(line, 1024, stream);
-
-                                        test = true;
-                                        system("pause");
-                                    }*/
 
                                     char* tmp = strdup(line);
                                     char* tmp2 = strdup(line);
 
                                     strcpy(candidato[i].nome, getfield(tmp, 18));
-                                    strcpy(cpfChar, getfield(tmp2 ,21));
-
-                                    //printf(">>%s\n",cpfChar);
-                                    candidato[i].cpf = atof(cpfChar);
-
-                                    //printf("nome : %s\n",candidato[i].nome);
-                                    //printf("cpf : %.0f\n",candidato[i].cpf);
+                                    strcpy(candidato[i].cpf, getfield(tmp2 ,21));
 
                                     i++;
                                     free(tmp);
@@ -100,7 +96,6 @@ int main()
                                 t_final = clock();
                                 tempo = ((double) (t_final - t_inicial)) /CLOCKS_PER_SEC;
                                 printf("Time: %lf seg\n",tempo);
-                               // getchar();
 
                                 break;
 
@@ -108,21 +103,23 @@ int main()
                             case 2:
 
                                 printf("\nDigite o CPF: ");
-                                scanf("%lf",&CPFsearch);
+                                scanf("%s" ,CPFsearch);
                                 cpfTest = false;
 
                                 for(i = 0; i < sizeStruct; i++)
                                 {
-                                    if(CPFsearch == candidato[i].cpf)
+                                    if(strcmp(CPFsearch, candidato[i].cpf) == 0)
                                     {
                                         printf("CPF Encontrado !\n");
                                         printf("Nome : %s\n",candidato[i].nome);
-                                        printf("CPF : %lf\n",candidato[i].cpf);
+                                        printf("CPF : %s\n",candidato[i].cpf);
+                                        printf("Comparações: %d\n",i+1);
                                         cpfTest = true;
                                         break;
                                     }
 
                                 }
+                                //i = 0;
 
                                 if(cpfTest == false)
                                 {
@@ -132,6 +129,7 @@ int main()
                                 break;
 
                             case 3:
+                                free(candidato);
                                 candidato = NULL;
                                 break;
 
@@ -145,8 +143,7 @@ int main()
                                     for(i = 0; i < sizeStruct; i++)
                                     {
                                         printf("Nome : %s\n",candidato[i].nome);
-                                        printf("CPF  : %0.lf\n",candidato[i].cpf);
-                                        //system("pause");
+                                        printf("CPF  : %s\n",candidato[i].cpf);
                                     }
                                 }
                                 printf("Comparações: %d\n",i);
@@ -193,21 +190,9 @@ int main()
                                     strcpy(nomeBTree, getfield(tmp, 18));
                                     strcpy(cpfChar, getfield(tmp2 ,21));
 
+                                     bt_insert(bt, newCandidato(cpfChar, nomeBTree));
 
-                                    cpfBTree = atof(cpfChar);
-
-                                    //printf("cpf %lf \n",cpfBTree);
-                                    //printf("nome %s\n" ,nomeBTree);
-                                    //system("pause");
-
-                                    bTree_Insert(b, cpfBTree ,nomeBTree);
-
-                                    Btree_Print_Keys(b);
-
-                                    system("pause");
-                                    system("cls");
-
-                                    i++;
+                                    //i++;
                                     free(tmp);
                                     free(tmp2);
                                 }
@@ -220,11 +205,24 @@ int main()
 
                             case 2:
                                 printf("\nDigite o CPF: ");
-                                scanf("%lf",&CPFsearch);
+                                scanf("%s",CPFsearch);
 
                                 t_inicial = clock();
 
-                                bTree_Search(b, CPFsearch);
+                                Candidato c;
+                                strcpy(c.cpf, CPFsearch);
+
+                                contador = 0;
+                                Candidato* result = bt_search(bt, &c);
+                                if(result == NULL)
+                                {
+                                    printf("deu ruim\n");
+                                }else
+                                {
+                                    printf("Nome : %s\n" ,result->nome);
+                                    printf("CPF : %s\n" ,result->cpf);
+                                    printf("Comparações : %d\n",contador);
+                                }
 
                                 t_final = clock();
                                 tempo = ((double) (t_final - t_inicial)) /CLOCKS_PER_SEC;
@@ -232,13 +230,13 @@ int main()
                                 break;
 
                             case 3:
-                                printf("Tamanho : %d\n",bTree_Count_All(b));
-                                bTree_Destroy(b);
+
+                                bt_free(bt);
                                 printf("Árvore Deletada com Sucesso !\n");
                                 break;
 
                             case 4:
-                                Btree_Print_Keys(b);
+
                                 break;
 
                             case 0:
@@ -266,7 +264,5 @@ int main()
 
     }while(option !=0);
 
-
-    return 0;
 
 }
