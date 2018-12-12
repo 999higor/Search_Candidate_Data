@@ -67,6 +67,8 @@ int main()
                                 {
                                     free(candidato);
                                 }
+                                //printf("tamanho %d\n",sizeStruct);
+
                                 candidato = malloc(sizeStruct*sizeof(Candidato));
                                 fclose(stream);
 
@@ -131,6 +133,7 @@ int main()
                             case 3:
                                 free(candidato);
                                 candidato = NULL;
+                                printf("Vetor desalocado ! !\n");
                                 break;
 
                             case 4:
@@ -216,9 +219,10 @@ int main()
                                 Candidato* result = bt_search(bt, &c);
                                 if(result == NULL)
                                 {
-                                    printf("deu ruim\n");
+                                    printf("Candidato não encontrado ! !\n");
                                 }else
                                 {
+                                    printf("Candidato Encontrado !\n");
                                     printf("Nome : %s\n" ,result->nome);
                                     printf("CPF : %s\n" ,result->cpf);
                                     printf("Comparações : %d\n",contador);

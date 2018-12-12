@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 
-#define MAX_KEYS (16)
+#define MAX_KEYS (8)
 extern const int AVG_KEY_INDEX;
 
 typedef int (*bt_compareCallback)(void *a, void *b);
